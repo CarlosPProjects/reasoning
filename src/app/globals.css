@@ -156,3 +156,22 @@
 .ios-button:active {
   transform: scale(0.97);
 }
+
+/* Collapsible elements styling */
+.collapsible-section {
+  overflow: hidden;
+  transition: height 0.2s ease;
+}
+
+.collapsible-header {
+  user-select: none;
+}
+
+.collapsible-content {
+  transform-origin: top;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dark .collapsible-header {
+  border-color: rgba(255, 255, 255, 0.05);
+}

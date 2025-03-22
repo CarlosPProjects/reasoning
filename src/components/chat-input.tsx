@@ -28,26 +28,28 @@ export function ChatInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-end w-full gap-3 bg-background/80 border-t backdrop-blur-md relative p-4"
+      className="flex items-end w-full gap-3 bg-background/80 border-t border-border/30 backdrop-blur-md relative p-4"
     >
-      <Textarea
-        name="prompt"
-        value={input}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        placeholder="Message..."
-        className="min-h-20 resize-none rounded-2xl bg-secondary/30 dark:bg-secondary border-secondary/10 backdrop-blur-sm"
-        disabled={isLoading}
-      />
-      <Button
-        type="submit"
-        size="icon"
-        disabled={!input.trim() || isLoading}
-        className="h-10 w-10 shrink-0 rounded-full ios-button absolute right-6 bottom-6"
-      >
-        <SendIcon className="h-5 w-5" />
-        <span className="sr-only">Send</span>
-      </Button>
+      <div className="relative w-full">
+        <Textarea
+          name="prompt"
+          value={input}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Message..."
+          className="min-h-20 pr-12 resize-none rounded-2xl bg-secondary/30 dark:bg-secondary/20 border-secondary/10 backdrop-blur-sm"
+          disabled={isLoading}
+        />
+        <Button
+          type="submit"
+          size="icon"
+          disabled={!input.trim() || isLoading}
+          className="h-9 w-9 shrink-0 rounded-full ios-button absolute right-2 bottom-2"
+        >
+          <SendIcon className="h-4 w-4" />
+          <span className="sr-only">Send</span>
+        </Button>
+      </div>
     </form>
   );
 } 
