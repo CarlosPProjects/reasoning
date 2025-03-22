@@ -31,7 +31,7 @@ export function ChatMessage({ message, isUser }: ChatMessageProps) {
           ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm"
           : "rounded-2xl rounded-tl-sm backdrop-blur-sm bg-secondary/40 dark:bg-secondary/20"
       )}>
-        <CardContent className="p-3 px-4">
+        <CardContent className="py-2 px-4">
           {message.parts.map((part: UIMessage['parts'][number], i: number) => (
             <MessagePart key={i} part={part} index={i} />
           ))}
