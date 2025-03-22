@@ -11,43 +11,12 @@ interface MessagePartProps {
 const MessagePart = ({ part, index }: MessagePartProps) => {
   switch (part.type) {
     case "text":
-      return <p key={index} className="leading-7">{part.text}</p>;
-    case "source":
-      return (
-        <div key={index} className="my-2 rounded-xl bg-muted/20 dark:bg-muted/10 p-3 backdrop-blur-sm">
-          <p className="text-sm font-medium">Source:</p>
-          <a
-            href={part.source.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-primary underline"
-          >
-            {part.source.url}
-          </a>
-        </div>
-      );
+      return <p key={index} className="text-sm">{part.text}</p>;
     case "reasoning":
       return (
         <div key={index} className="my-2 rounded-xl bg-muted/20 dark:bg-muted/10 p-3 backdrop-blur-sm">
           <p className="text-sm font-medium mb-1">Reasoning:</p>
           <p className="text-sm text-muted-foreground">{part.reasoning}</p>
-        </div>
-      );
-    case "tool-invocation":
-      return (
-        <div key={index} className="my-2 rounded-xl bg-amber-100/50 dark:bg-amber-950/30 p-3 backdrop-blur-sm">
-          <p className="text-sm font-medium mb-1">Tool Used:</p>
-          <code className="text-sm font-mono">{part.toolInvocation.toolName}</code>
-        </div>
-      );
-    case "file":
-      return (
-        <div key={index} className="my-2">
-          <img
-            src={`data:${part.mimeType};base64,${part.data}`}
-            alt="File attachment"
-            className="max-w-full rounded-xl"
-          />
         </div>
       );
     default:
@@ -84,12 +53,6 @@ export function ChatMessage({ message, isUser }: ChatMessageProps) {
           ))}
         </CardContent>
       </Card>
-
-      {isUser && (
-        <Avatar className="h-8 w-8 ring-1 ring-accent/10">
-          <AvatarFallback className="bg-accent/30 dark:bg-accent/20 text-xs">YOU</AvatarFallback>
-        </Avatar>
-      )}
     </div>
   );
 } 

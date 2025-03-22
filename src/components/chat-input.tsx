@@ -15,9 +15,8 @@ export function ChatInput({
   handleSubmit,
   isLoading = false,
 }: ChatInputProps) {
-  // Handle Ctrl+Enter to submit
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (input.trim() && !isLoading) {
         const form = e.currentTarget.form;
