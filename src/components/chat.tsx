@@ -28,9 +28,9 @@ export function Chat() {
   }, [error]);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-background overflow-hidden transition-colors duration-300">
       <ChatHeader />
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden relative">
         <ChatContainer messages={messages} />
       </main>
       <ChatInput

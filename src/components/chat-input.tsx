@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SendIcon } from "lucide-react";
@@ -18,7 +17,7 @@ export function ChatInput({
 }: ChatInputProps) {
   // Handle Ctrl+Enter to submit
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (input.trim() && !isLoading) {
         const form = e.currentTarget.form;
@@ -30,22 +29,22 @@ export function ChatInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-end w-full gap-2 bg-background p-4 border-t"
+      className="flex items-end w-full gap-3 bg-background/80 border-t backdrop-blur-md relative p-4"
     >
       <Textarea
         name="prompt"
         value={input}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        placeholder="Ask a question..."
-        className="min-h-24 resize-none"
+        placeholder="Message..."
+        className="min-h-20 resize-none rounded-2xl bg-secondary/30 dark:bg-secondary border-secondary/10 backdrop-blur-sm"
         disabled={isLoading}
       />
       <Button
         type="submit"
         size="icon"
         disabled={!input.trim() || isLoading}
-        className="h-10 w-10 shrink-0"
+        className="h-10 w-10 shrink-0 rounded-full ios-button absolute right-6 bottom-6"
       >
         <SendIcon className="h-5 w-5" />
         <span className="sr-only">Send</span>

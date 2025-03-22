@@ -6,6 +6,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: deepseek("deepseek-reasoner"),
+    system: "You are a helpful assistant",
     experimental_transform: smoothStream({chunking: "word"}),
     messages,
   })
