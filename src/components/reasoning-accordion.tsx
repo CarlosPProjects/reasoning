@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Loader2, BrainCircuit } from "lucide-react";
 import {
   Accordion,
@@ -11,13 +11,22 @@ import {
 import { cn } from "@/lib/utils";
 
 interface ReasoningAccordionProps {
+  /** Título mostrado en el encabezado del acordeón */
   title: string;
+  /** Contenido del acordeón */
   children: React.ReactNode;
+  /** Indica si el contenido está cargando */
   isLoading?: boolean;
+  /** Indica si el acordeón debe estar expandido por defecto */
   defaultExpanded?: boolean;
+  /** Indica si el acordeón debe contraerse automáticamente cuando termina la carga */
   autoCollapseAfterLoading?: boolean;
 }
 
+/**
+ * Componente de acordeón especializado para mostrar contenido de razonamiento
+ * con soporte para estados de carga y colapso automático.
+ */
 export function ReasoningAccordion({
   title,
   children,
@@ -25,29 +34,38 @@ export function ReasoningAccordion({
   isLoading = false,
   autoCollapseAfterLoading = false
 }: ReasoningAccordionProps) {
-  const [isExpanded, setIsExpanded] = useState<string | undefined>(defaultExpanded ? "reasoning-item" : undefined);
+  // Estado para controlar si el acordeón está expandido
+  const [isExpanded, setIsExpanded] = useState<string | undefined>(
+    defaultExpanded ? "reasoning-item" : undefined
+  );
+
+  // Seguimiento del estado de carga anterior para detectar cambios
   const [wasLoading, setWasLoading] = useState(isLoading);
 
-  // Controlar el estado de expansión basado en el estado de carga
+  // Manejador para colapsar el acordeón con un retraso
+  const handleCollapseWithDelay = useCallback(() => {
+    const timer = setTimeout(() => {
+      setIsExpanded(undefined);
+    }, 800); // Retraso de 800ms para una mejor experiencia de usuario
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Efecto para controlar la expansión/contracción basada en el estado de carga
   useEffect(() => {
-    // Si comienza a cargar, expandir la sección
+    // Si comienza a cargar, expandir el acordeón
     if (isLoading && !wasLoading) {
       setIsExpanded("reasoning-item");
     }
 
-    // Si termina de cargar y está configurado para auto-colapsar
+    // Si termina de cargar y debe autocontraerse
     if (!isLoading && wasLoading && autoCollapseAfterLoading) {
-      // Pequeño retraso antes de colapsar para que el usuario pueda ver los datos
-      const timer = setTimeout(() => {
-        setIsExpanded(undefined);
-      }, 800); // Retraso de 800ms
-
-      return () => clearTimeout(timer);
+      return handleCollapseWithDelay();
     }
 
-    // Actualizar el estado anterior
+    // Actualizar el registro del estado de carga
     setWasLoading(isLoading);
-  }, [isLoading, wasLoading, autoCollapseAfterLoading]);
+  }, [isLoading, wasLoading, autoCollapseAfterLoading, handleCollapseWithDelay]);
 
   return (
     <Accordion
@@ -59,24 +77,31 @@ export function ReasoningAccordion({
     >
       <AccordionItem value="reasoning-item" className="border-0">
         <AccordionTrigger
-          className="bg-muted/20 dark:bg-muted/10 py-2 px-3 hover:bg-muted/30 
-                     dark:hover:bg-muted/20 transition-colors hover:no-underline"
+          className={cn(
+            "bg-muted/20 dark:bg-muted/10 py-2 px-3",
+            "hover:bg-muted/30 dark:hover:bg-muted/20",
+            "transition-colors hover:no-underline"
+          )}
         >
           <div className="flex items-center gap-1.5">
-            {isLoading ?
-              <Loader2 className="size-3 animate-spin text-muted-foreground/70" /> :
+            {isLoading ? (
+              <Loader2 className="size-3 animate-spin text-muted-foreground/70" />
+            ) : (
               <BrainCircuit className="size-3 text-muted-foreground/70" />
-            }
+            )}
             <p className="text-xs font-medium text-muted-foreground">{title}</p>
           </div>
         </AccordionTrigger>
+
         <AccordionContent className="p-0 data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-          {/* Contenedor con barra lateral */}
           <div className="relative flex">
             {/* Barra lateral decorativa */}
-            <div className="w-[2px] shrink-0 self-stretch bg-gradient-to-b from-primary/10 via-primary/20 to-primary/10 dark:from-primary/5 dark:via-primary/30 dark:to-primary/5"></div>
+            <div
+              className="w-[2px] shrink-0 self-stretch bg-gradient-to-b from-primary/10 via-primary/20 to-primary/10 dark:from-primary/5 dark:via-primary/30 dark:to-primary/5"
+              aria-hidden="true"
+            />
 
-            {/* Contenido con padding ajustado */}
+            {/* Contenido */}
             <div className="bg-muted/10 dark:bg-muted/5 px-4 py-3 text-sm text-muted-foreground w-full">
               {children}
             </div>
