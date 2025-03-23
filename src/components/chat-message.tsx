@@ -4,16 +4,43 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
-import { BrainCircuit } from "lucide-react";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { MarkdownContent } from "@/components/markdown-content";
+import { useState, useEffect } from "react";
 
 interface ChatMessageProps {
   message: UIMessage;
   isUser: boolean;
+  isStreaming?: boolean;
 }
 
-export function ChatMessage({ message, isUser }: ChatMessageProps) {
+export function ChatMessage({ message, isUser, isStreaming = false }: ChatMessageProps) {
+  // Estado para controlar si el mensaje está en proceso de razonamiento
+  const [isReasoning, setIsReasoning] = useState(false);
+
+  // Verificar si el mensaje tiene una parte de tipo "reasoning"
+  const hasReasoningPart = message.parts.some(part => part.type === "reasoning");
+
+  // Cuando se recibe un nuevo mensaje no usuario con parte de razonamiento, establecer el estado
+  useEffect(() => {
+    if (!isUser && hasReasoningPart) {
+      // Verificar si el mensaje tiene contenido vacío o incompleto en la parte de reasoning
+      const reasoningPart = message.parts.find(part => part.type === "reasoning");
+      const isReasoningEmpty = !reasoningPart?.reasoning || reasoningPart.reasoning.trim() === "";
+
+      // Mostrar el loader si el razonamiento está vacío o si está en streaming
+      setIsReasoning(isReasoningEmpty || isStreaming);
+
+      // Si el razonamiento está completo y no está streaming, ocultar el loader después de un breve tiempo
+      if (!isReasoningEmpty && !isStreaming) {
+        const timer = setTimeout(() => {
+          setIsReasoning(false);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isUser, message, hasReasoningPart, isStreaming]);
+
   return (
     <div className={cn(
       "flex w-full gap-3 py-3",
@@ -33,30 +60,36 @@ export function ChatMessage({ message, isUser }: ChatMessageProps) {
       )}>
         <CardContent className="py-2 px-4">
           {message.parts.map((part: UIMessage['parts'][number], i: number) => (
-            <MessagePart key={i} part={part} index={i} />
+            <MessagePart
+              key={i}
+              part={part}
+              index={i}
+              isLoading={!isUser && part.type === "reasoning" && isReasoning}
+            />
           ))}
         </CardContent>
       </Card>
     </div>
   );
-} 
+}
 
 interface MessagePartProps {
   part: UIMessage['parts'][number];
   index: number;
+  isLoading?: boolean;
 }
 
-const MessagePart = ({ part, index }: MessagePartProps) => {
+const MessagePart = ({ part, index, isLoading = false }: MessagePartProps) => {
   switch (part.type) {
     case "text":
       return <MarkdownContent key={index} content={part.text} />;
     case "reasoning":
       return (
         <CollapsibleSection
-          title="Razonamiento"
-          icon={<BrainCircuit className="h-3.5 w-3.5 text-muted-foreground/70" />}
+          title="Reasoning"
+          isLoading={isLoading}
         >
-          <MarkdownContent content={part.reasoning} />
+          <MarkdownContent content={part.reasoning || ""} className="text-xs" />
         </CollapsibleSection>
       );
     default:

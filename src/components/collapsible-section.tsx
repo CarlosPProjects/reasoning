@@ -1,21 +1,21 @@
 "use client"
 
 import { useState } from "react";
-import { ChevronUp } from "lucide-react";
+import { BrainCircuit, ChevronUp, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CollapsibleSectionProps {
   title: string;
-  icon?: React.ReactNode;
   children: React.ReactNode;
+  isLoading?: boolean;
   defaultExpanded?: boolean;
-}
+} 
 
 export function CollapsibleSection({
   title,
-  icon,
   children,
-  defaultExpanded = true
+  defaultExpanded = true,
+  isLoading = false
 }: CollapsibleSectionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
@@ -26,7 +26,7 @@ export function CollapsibleSection({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-1.5">
-          {icon}
+          {isLoading ? <Loader2 className="size-3 animate-spin " /> : <BrainCircuit className="size-3 text-muted-foreground/70" />}
           <p className="text-xs font-medium text-muted-foreground">{title}</p>
         </div>
         <button

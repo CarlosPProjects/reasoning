@@ -1,13 +1,15 @@
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "@/components/chat-message";
-import { MessageCircleIcon} from "lucide-react"
+import { MessageCircleIcon } from "lucide-react"
+import { UIMessage } from "ai";
 
 interface ChatContainerProps {
-  messages: any[];
+  messages: UIMessage[];
+  isStreaming?: boolean;
 }
 
-export function ChatContainer({ messages }: ChatContainerProps) {
+export function ChatContainer({ messages, isStreaming = false }: ChatContainerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -39,7 +41,19 @@ export function ChatContainer({ messages }: ChatContainerProps) {
         {messages.map((message, i) => {
           // Determine if this is a user message
           const isUser = message.role === 'user';
-          return <ChatMessage key={i} message={message} isUser={isUser} />;
+
+          // Para el último mensaje de asistente, si estamos en estado streaming, marcarlo
+          const isLastAssistantMessage = !isUser && i === messages.length - 1;
+          const isCurrentlyStreaming = isStreaming && isLastAssistantMessage;
+
+          return (
+            <ChatMessage
+              key={i}
+              message={message}
+              isUser={isUser}
+              isStreaming={isCurrentlyStreaming}
+            />
+          );
         })}
         <div ref={scrollRef} />
       </div>

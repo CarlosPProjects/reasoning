@@ -31,7 +31,10 @@ export function Chat() {
     <div className="flex flex-col h-screen bg-background overflow-hidden transition-colors duration-300">
       <ChatHeader />
       <main className="flex-1 overflow-hidden relative">
-        <ChatContainer messages={messages} />
+        <ChatContainer
+          messages={messages}
+          isStreaming={status === "streaming"}
+        />
       </main>
       <ChatInput
         input={input}
