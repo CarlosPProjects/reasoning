@@ -4,9 +4,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
-import { CollapsibleSection } from "@/components/collapsible-section";
 import { MarkdownContent } from "@/components/markdown-content";
 import { useState, useEffect } from "react";
+import { ReasoningAccordion } from "@/components/reasoning-accordion";
 
 interface ChatMessageProps {
   message: UIMessage;
@@ -15,31 +15,24 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, isUser, isStreaming = false }: ChatMessageProps) {
-  // Estado para controlar si el mensaje está en proceso de razonamiento
-  const [isReasoning, setIsReasoning] = useState(false);
+  const [showReasoningLoader, setShowReasoningLoader] = useState(false);
 
-  // Verificar si el mensaje tiene una parte de tipo "reasoning"
   const hasReasoningPart = message.parts.some(part => part.type === "reasoning");
 
-  // Cuando se recibe un nuevo mensaje no usuario con parte de razonamiento, establecer el estado
+  const reasoningPart = message.parts.find(part => part.type === "reasoning");
+  const isReasoningEmpty = reasoningPart && (!reasoningPart.reasoning || reasoningPart.reasoning.trim() === "");
+
+  const textPart = message.parts.find(part => part.type === "text");
+  const hasTextContent = textPart && textPart.text && textPart.text.trim() !== "";
+
   useEffect(() => {
     if (!isUser && hasReasoningPart) {
-      // Verificar si el mensaje tiene contenido vacío o incompleto en la parte de reasoning
-      const reasoningPart = message.parts.find(part => part.type === "reasoning");
-      const isReasoningEmpty = !reasoningPart?.reasoning || reasoningPart.reasoning.trim() === "";
-
-      // Mostrar el loader si el razonamiento está vacío o si está en streaming
-      setIsReasoning(isReasoningEmpty || isStreaming);
-
-      // Si el razonamiento está completo y no está streaming, ocultar el loader después de un breve tiempo
-      if (!isReasoningEmpty && !isStreaming) {
-        const timer = setTimeout(() => {
-          setIsReasoning(false);
-        }, 500);
-        return () => clearTimeout(timer);
-      }
+      const shouldShowLoader = isStreaming && (isReasoningEmpty || !hasTextContent);
+      setShowReasoningLoader(shouldShowLoader);
+    } else {
+      setShowReasoningLoader(false);
     }
-  }, [isUser, message, hasReasoningPart, isStreaming]);
+  }, [isUser, isStreaming, isReasoningEmpty, hasTextContent, hasReasoningPart]);
 
   return (
     <div className={cn(
@@ -64,7 +57,7 @@ export function ChatMessage({ message, isUser, isStreaming = false }: ChatMessag
               key={i}
               part={part}
               index={i}
-              isLoading={!isUser && part.type === "reasoning" && isReasoning}
+              isLoading={part.type === "reasoning" && showReasoningLoader}
             />
           ))}
         </CardContent>
@@ -85,12 +78,17 @@ const MessagePart = ({ part, index, isLoading = false }: MessagePartProps) => {
       return <MarkdownContent key={index} content={part.text} />;
     case "reasoning":
       return (
-        <CollapsibleSection
+        <ReasoningAccordion
           title="Reasoning"
           isLoading={isLoading}
+          defaultExpanded={isLoading}
+          autoCollapseAfterLoading={true}
         >
-          <MarkdownContent content={part.reasoning || ""} className="text-xs" />
-        </CollapsibleSection>
+          <MarkdownContent
+            content={part.reasoning || ""}
+            className="text-xs text-muted-foreground/90 leading-relaxed tracking-wide"
+          />
+        </ReasoningAccordion>
       );
     default:
       return null;

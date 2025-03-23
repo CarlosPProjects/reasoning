@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrainCircuit, ChevronUp, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,15 +9,39 @@ interface CollapsibleSectionProps {
   children: React.ReactNode;
   isLoading?: boolean;
   defaultExpanded?: boolean;
-} 
+  autoCollapseAfterLoading?: boolean;
+}
 
 export function CollapsibleSection({
   title,
   children,
   defaultExpanded = true,
-  isLoading = false
+  isLoading = false,
+  autoCollapseAfterLoading = false
 }: CollapsibleSectionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [wasLoading, setWasLoading] = useState(isLoading);
+
+  // Controlar el estado de expansión basado en el estado de carga
+  useEffect(() => {
+    // Si comienza a cargar, expandir la sección
+    if (isLoading && !wasLoading) {
+      setIsExpanded(true);
+    }
+
+    // Si termina de cargar y está configurado para auto-colapsar
+    if (!isLoading && wasLoading && autoCollapseAfterLoading) {
+      // Pequeño retraso antes de colapsar para que el usuario pueda ver los datos
+      const timer = setTimeout(() => {
+        setIsExpanded(false);
+      }, 800); // Retraso de 800ms
+
+      return () => clearTimeout(timer);
+    }
+
+    // Actualizar el estado anterior
+    setWasLoading(isLoading);
+  }, [isLoading, wasLoading, autoCollapseAfterLoading]);
 
   return (
     <div className="my-2 rounded-xl overflow-hidden collapsible-section">

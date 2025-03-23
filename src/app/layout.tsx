@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "iOS-style Chat",
-  description: "A minimalist chat interface with iOS-style design",
+  title: "Chat Assistant",
+  description: "A reasoning chat assistant",
 };
 
 export default function RootLayout({
